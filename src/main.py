@@ -6,7 +6,8 @@ pbar = progressbar.ProgressBar()
 # Add Dustbins
 for i in range(numNodes):
     RouteManager.addDustbin(Dustbin())
-print("add dustbin")
+    
+print("Finish creating grapth")
 random.seed(seedValue)
 yaxis = [] # Fittest value (distance)
 xaxis = [] # Generation count

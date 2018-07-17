@@ -6,7 +6,17 @@ from dustbin import *
 
 class RouteManager:
     destinationDustbins = []
-
+    numTrucks = None
+    
+    @classmethod
+    def initNumTrucks (cls, numTrucks):
+        cls.numTrucks = numTrucks
+        
+    @classmethod
+    def getNumTrucks (cls):
+        return cls.numTrucks 
+    
+    
     @classmethod
     def addDustbin (cls, db):
         cls.destinationDustbins.append(db)

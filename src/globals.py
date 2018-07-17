@@ -4,18 +4,13 @@ import math
 Contains all global variables specific to simulation
 '''
 # Defines range for coordinates when dustbins are randomly scattered
-xMax = 100
-yMax = 100
-seedValue = 1
-numNodes = 50
 numGenerations = 100
-# size of population
 populationSize = 100
 mutationRate = 0.02
-tournamentSize = 20
+tournamentSize = 3
 elitism = True
-# number of trucks
-numTrucks = 5
+hash_table_route = {}
+
 
 def random_range(n, total):
     """Return a randomly chosen list of n positive integers summing to total.
@@ -26,7 +21,7 @@ def random_range(n, total):
 
 # Randomly distribute number of dustbins to subroutes
 # Maximum and minimum values are maintained to reach optimal result
-def route_lengths():
+def route_lengths(numNodes, numTrucks):
     upper = (numNodes + numTrucks - 1)
     fa = upper/numTrucks*1.6 # max route length
     fb = upper/numTrucks*0.6 # min route length
@@ -41,7 +36,7 @@ def route_lengths():
 
 
 
-print(route_lengths())
+#print(route_lengths())
 
 
 

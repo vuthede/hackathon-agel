@@ -7,14 +7,21 @@ from routemanager import *
 class Route:
     # Good old constructor
     def __init__ (self, route = None):
+        if (RouteManager.getNumTrucks() is None):
+            raise ("'numTrucks' in RouteManager can not be None")
+        
         # 2D array which is collection of respective routes taken by trucks
         self.route = []
         # 1D array having routes in a series - used during crossover operation
         self.base = []
+        
+        self.numNodes =  RouteManager.numberOfDustbins()
+        self.numTrucks = RouteManager.getNumTrucks()
+       
         # 1D array having route lengths
-        self.routeLengths = route_lengths()
+        self.routeLengths = route_lengths(self.numNodes, self.numTrucks)
 
-        for i in range(numTrucks):
+        for i in range(self.numTrucks):
             self.route.append([])
 
         # fitness value and total distance of all routes
@@ -23,7 +30,7 @@ class Route:
 
         # creating empty route
         if route == None:
-            for i in range(RouteManager.numberOfDustbins()-1):
+            for i in range(self.numNodes - 1):
                 self.base.append(Dustbin(-1,-1))
 
         else:
@@ -32,11 +39,11 @@ class Route:
     def generateIndividual (self):
         k=0
         # put 1st member of RouteManager as it is (It represents the initial node) and shuffle the rest before adding
-        for dindex in range(1, RouteManager.numberOfDustbins()):
+        for dindex in range(1, self.numNodes ):
             self.base[dindex-1] = RouteManager.getDustbin(dindex)
         random.shuffle(self.base)
 
-        for i in range(numTrucks):
+        for i in range(self.numTrucks):
             self.route[i].append(RouteManager.getDustbin(0)) # add same first node for each route
             for j in range(self.routeLengths[i]-1):
                 self.route[i].append(self.base[k]) # add shuffled values for rest
@@ -65,7 +72,7 @@ class Route:
         if self.distance == 0:
             routeDistance = 0
 
-            for i in range(numTrucks):
+            for i in range(self.numTrucks):
                 for j in range(self.routeLengths[i]):
                     fromDustbin = self.getDustbin(i, j)
 
@@ -73,9 +80,9 @@ class Route:
                         destinationDustbin = self.getDustbin(i, j + 1)
 
 #                     else:
-#                         destinationDustbin = self.getDustbin(i, j+1)
+#                         destinationDustbin = self.getDustbin(i, 0)
 
-                    routeDistance += fromDustbin.distanceTo(destinationDustbin)
+                        routeDistance += fromDustbin.distanceTo(destinationDustbin)
 
         distance =  routeDistance
         return routeDistance
@@ -93,7 +100,7 @@ class Route:
         print (self.routeLengths)
         #for k in range(RouteManager.numberOfDustbins()-1):
         #    print (self.base[k].toString())
-        for i in range(numTrucks):
+        for i in range(RouteManager.getNumTrucks()):
             for j in range(self.routeLengths[i]):
                 geneString += self.getDustbin(i,j).toString() + '|'
             geneString += '\n'
