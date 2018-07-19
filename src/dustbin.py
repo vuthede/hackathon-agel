@@ -3,8 +3,8 @@ Represents nodes in the problem graph or network.
 Locatin coordinates can be passed while creating the object or they
 will be assigned random values.
 '''
-from globals import *
-from helper import haversine, real_distance
+from src.globals import *
+from src.helper import haversine, real_distance
 
 class Dustbin:
     

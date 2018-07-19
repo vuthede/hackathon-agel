@@ -1,5 +1,5 @@
-from galogic import *
-import globals
+from src.galogic import *
+import src.globals
 from pprint import pprint
 
 def route2points(route):

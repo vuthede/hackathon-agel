@@ -2,7 +2,7 @@ from math import radians, cos, sin, asin, sqrt
 import urllib.request
 import json
 import numpy as np
-import globals
+import src.globals
 
 
 def haversine(lon1, lat1, lon2, lat2):

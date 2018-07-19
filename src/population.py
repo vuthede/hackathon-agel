@@ -1,7 +1,7 @@
 '''
 Collection of routes (chrmosomes)
 '''
-from route import *
+from src.route import *
 
 class Population:
     routes = []

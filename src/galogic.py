@@ -2,7 +2,7 @@
 The main helper class for Genetic Algorithm to perform
 crossover, mutation on populations to evolve them
 '''
-from population import *
+from src.population import *
 
 class GA:
 
