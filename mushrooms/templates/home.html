@@ -1,0 +1,17 @@
+{% include "index.html" %}
+<div>
+        <form action="home" method="get">
+            {% csrf_token %}
+          <label for="your_name">Your name: </label>
+          <input id="your_name" type="text" name="your_name" value="{{ current_name }}">
+          <input type="submit" value="OK">
+      </form>
+      {% if submitbutton == "Submit" %} 
+      <h1> Your first name is {{ firstname }}</h1>
+      <h1> Your last name is {{ lastname }}</h1>
+      <h1> Your email is {{ emailvalue }} </h1>
+      {% endif %}
+      
+      <textarea id="listpoint" rows="4" cols="50">{{routes}}</textarea>
+      <button id="startcal" onclick="location.href= '/home'">Caculate</button>
+    </div>

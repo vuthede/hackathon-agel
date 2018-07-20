@@ -20,11 +20,12 @@ from django.contrib import admin
 from django.views.generic import TemplateView
 from djgeojson.views import GeoJSONLayerView
 from .models import MushroomSpot
-from . import view
+from . import view 
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^$', TemplateView.as_view(template_name='index.html'), name='home'),
     url(r'^data.geojson$', GeoJSONLayerView.as_view(model=MushroomSpot, properties=('title', 'description', 'picture_url')), name='data'),
-    url('routing',view.RoutingList.pointre)
+    url(r'^home$',TemplateView.as_view(template_name='home.html'), name='home'),
+    url(r'^home/$',view.RoutingList.pointre)
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
