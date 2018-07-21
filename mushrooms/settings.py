@@ -130,4 +130,4 @@ LEAFLET_CONFIG = {
     'MAX_ZOOM': 18,
 }
 
-GDAL_LIBRARY_PATH = r'C:\OSGeo4W64\bin\gdal202'
+#GDAL_LIBRARY_PATH = r'C:\OSGeo4W64\bin\gdal202'
