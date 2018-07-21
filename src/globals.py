@@ -9,6 +9,7 @@ populationSize = 100
 mutationRate = 0.02
 tournamentSize = 3
 elitism = True
+
 hash_table_route = {}
 
 

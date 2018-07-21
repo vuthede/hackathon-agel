@@ -5,6 +5,7 @@ creation of chromosomes by jumbling their sequence
 from src.dustbin import *
 
 class RouteManager:
+    hash_table_route = {}
     destinationDustbins = []
     numTrucks = None
     

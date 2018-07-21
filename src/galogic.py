@@ -4,6 +4,12 @@ crossover, mutation on populations to evolve them
 '''
 from src.population import *
 
+numGenerations = 100
+populationSize = 100
+mutationRate = 0.02
+tournamentSize = 3
+elitism = True
+
 class GA:
 
     @classmethod

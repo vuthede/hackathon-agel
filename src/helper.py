@@ -3,7 +3,8 @@ import urllib.request
 import json
 import numpy as np
 import src.globals
-
+import src.routemanager 
+# import RouteManager 
 
 def haversine(lon1, lat1, lon2, lat2):
     """
@@ -51,19 +52,19 @@ def route(start, end):
     return data_route
     
 
-
-
 def real_distance(lon1, lat1, lon2, lat2):
     key = str(lat1) + str(lon1) + str(lat2) + str(lon2)
-    if key in list(globals.hash_table_route.keys()):
-        return globals.hash_table_route[key]['distance']
+    if key in list(src.routemanager.RouteManager.hash_table_route.keys()):
+        return src.routemanager.RouteManager.hash_table_route[key]['distance']
     
     res = route((lat1, lon1), (lat2, lon2))
     if res != {}:
-        globals.hash_table_route[str(lat1) + str(lon1) + str(lat2) + str(lon2)] = res
+        src.routemanager.RouteManager.hash_table_route[str(lat1) + str(lon1) + str(lat2) + str(lon2)] = res
         return res['distance']
     
     return 0.0
+
+
     
     
 

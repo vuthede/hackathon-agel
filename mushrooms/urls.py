@@ -28,5 +28,5 @@ urlpatterns = [
     url(r'^data.geojson$', GeoJSONLayerView.as_view(model=MushroomSpot, properties=('title', 'description', 'picture_url')), name='data'),
  #   url(r'^home$',TemplateView.as_view(template_name='home.html'), name='home'),
   #  url(r'^home$',view.RoutingList.pointre),
-    url(r'^home$',view.RoutingList.helloworld)
+    url(r'^home$',view.RoutingList.pointre)
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

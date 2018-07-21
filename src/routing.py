@@ -1,6 +1,23 @@
 from src.galogic import *
 import src.globals
 from pprint import pprint
+from src.routemanager import RouteManager
+
+#hash_table_route = {}
+
+
+def real_distance(lon1, lat1, lon2, lat2):
+    key = str(lat1) + str(lon1) + str(lat2) + str(lon2)
+    if key in list(RouteManager.hash_table_route.keys()):
+        return RouteManager.hash_table_route[key]['distance']
+    
+    res = route((lat1, lon1), (lat2, lon2))
+    if res != {}:
+        RouteManager.hash_table_route[str(lat1) + str(lon1) + str(lat2) + str(lon2)] = res
+        return res['distance']
+    
+    return 0.0
+
 
 def route2points(route):
     points = []
@@ -17,6 +34,8 @@ def route2points(route):
     
     return points
 
+
+
 def single_source_routing(points, numTrucks):
     """Return best routes for each shipper from single source
     
@@ -32,7 +51,7 @@ def single_source_routing(points, numTrucks):
     """
     
     # Reset hash_table
-    globals.hash_table_route = {}
+    #init_hash_table()
     
     for p in points:
         RouteManager.addDustbin(Dustbin(p[0], p[1])) # p[0]: lat, p[1]: lng
@@ -58,7 +77,7 @@ def single_source_routing(points, numTrucks):
             s = globalRoute.getDustbin(i,j)
             e = globalRoute.getDustbin(i,j+1)
             key = str(s.getLat()) + str(s.getLng()) + str(e.getLat()) + str(e.getLng())
-            res = globals.hash_table_route[key]
+            res = RouteManager.hash_table_route[key]
             sub_routes += route2points(res)
         routes.append(sub_routes)
     
