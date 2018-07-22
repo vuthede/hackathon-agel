@@ -1,0 +1,56 @@
+{% include "index.html" %}
+{% block js %}
+<script>window.addEventListener("map:init", function (event) {
+        L.marker([10.766172,106.664071]
+        ).addTo(map);
+        marker = new L.marker([10.764761, 106.661518]
+        ,{draggable:'true'}); 
+        marker.on('dragend', function(e) {
+            console.log('marker dragend event');
+            var coord = this._latlng;
+            var lat = coord.lat
+            var lng = coord.lng;
+            Number.prototype.toRad = function() {
+                return this * Math.PI / 180;
+             }
+             //10.766172,106.664071
+             var lat2 = 10.766172; 
+             var lon2 = 106.664071; 
+             var lat1 = lat; 
+             var lon1 = lng; 
+             
+             var R = 6371; // km 
+             //has a problem with the .toRad() method below.
+             var x1 = lat2-lat1;
+             var dLat = x1.toRad();  
+             var x2 = lon2-lon1;
+             var dLon = x2.toRad();  
+             var a = Math.sin(dLat/2) * Math.sin(dLat/2) + 
+                             Math.cos(lat1.toRad()) * Math.cos(lat2.toRad()) * 
+                             Math.sin(dLon/2) * Math.sin(dLon/2);  
+             var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+             var d = R * c; 
+             var token = $('input[name="csrfmiddlewaretoken"]').prop('value');
+             $.ajax({
+                type: 'post',
+                url: 'getdistance',
+                data:  (
+                  {
+                    'csrfmiddlewaretoken': token,
+                    distance:d
+                  }
+                ) 
+                ,
+                success: function(response) {
+                 
+                },
+                error: function(xhr, status, error) {
+                  // shit happens friends!
+                }
+              });
+//             alert(d); 
+          });
+          map.addLayer(marker);
+    });         
+</script>
+{% endblock js %}

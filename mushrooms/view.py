@@ -8,7 +8,11 @@ import datetime
 from django.http import HttpResponse
 import src.globals
 import src.routemanager 
-
+import requests
+from django.http import JsonResponse
+import json
+import urllib.request
+import nexmo
 # def helloworld(request):
 #     print("this is request ahi ")
 #     print("hello world")
@@ -31,20 +35,60 @@ class RoutingList():
         html = "<html><body>It is working!!! Haha %s.</body></html>" 
         return HttpResponse(routes)
     
-def get_name(request):
-    # if this is a POST request we need to process the form data
-    if request.method == 'POST':
-        # create a form instance and populate it with data from the request:
-        form = NameForm(request.POST)
-        # check whether it's valid:
-        if form.is_valid():
-            # process the data in form.cleaned_data as required
-            # ...
-            # redirect to a new URL:
-            return HttpResponseRedirect('/thanks/')
+def load_color(request):
+    latTL = request.POST.get('latTL')
+    lonTL = request.POST.get('lonTL')
+    latTR = request.POST.get('latTR')
+    lonTR = request.POST.get('lonTR')
+    latBL = request.POST.get('latBL')
+    lonBL = request.POST.get('lonBL')
+    latBR = request.POST.get('latBR')
+    lonBR = request.POST.get('lonBR')
+    zoom = request.POST.get('zoom')
+    print(latTL)
+    url = 'https://traffic.hcmut.edu.vn/hcm/rest/tc/init?latTL=' + latTL + '&lonTL=' + lonTL + '&latTR=' + latTR + '&lonTR=' + lonTR + '&latBL=' + latBL + '&lonBL=' + lonBL + '&latBR=' + latBR + '&lonBR=' + lonBR + '&zoom=' + zoom
 
-    # if a GET (or any other method) we'll create a blank form
-    else:
-        form = NameForm()
+#    url = 'https://traffic.hcmut.edu.vn'+request
+    r = requests.get(url, params=request.GET)
+    print(r.json())
+    print(type(r.json()))
+    data = r.json()
+    last = data['last']
+    key = None
+    while not last:
+        key = data['key']
+        contents = urllib.request.urlopen("https://traffic.hcmut.edu.vn/hcm/rest/tc/get?key="+str(key)).read().decode("utf8")
+        res = json.loads(contents)
+        data["segs"] = data["segs"] + res["segs"]
+        last = res["last"]
+        data["key"] = res.get("key", None)
+    return JsonResponse(data)
+def get_distance(request):
+    distance = float(request.POST.get('distance'))
+    print(distance)
+    time = distance / 30 *60
+    print(time)
+    if time <= 5:
+        client = nexmo.Client(
+            application_id='81980ab0-cf63-44c1-9a2c-4f0169a45e08',
+            private_key='C:\\Users\\ASUS\\Documents\\hackathon-agel\\mushrooms\\private.key'
+        )
 
-    return render(request, 'home.html', {'form': form})
+        to_number = [{'type': 'phone', 'number': '84968399590'}]
+        from_number = {'type': 'phone', 'number': '841646905917'}
+        answer_url = ['https://api.myjson.com/bins/1bkt7e']
+
+        response = client.create_call({
+            'to': to_number,
+            'from': from_number,
+            'answer_url': answer_url
+        })
+    elif time <=10:
+        client = nexmo.Client(key='907b6963', secret='RgznGXxoeojL49gh')
+        response = client.send_message(
+        {
+        'from': 'Python',
+        'to': '84968399590', 'text': 'You will receive your packet in 10 minute'
+        })
+        print('aaaa')
+    return 0

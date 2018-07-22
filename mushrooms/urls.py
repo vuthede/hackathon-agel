@@ -26,7 +26,9 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^$', TemplateView.as_view(template_name='index.html'), name='home'),
     url(r'^data.geojson$', GeoJSONLayerView.as_view(model=MushroomSpot, properties=('title', 'description', 'picture_url')), name='data'),
- #   url(r'^home$',TemplateView.as_view(template_name='home.html'), name='home'),
+    url(r'^home$',TemplateView.as_view(template_name='home.html'), name='home'),
   #  url(r'^home$',view.RoutingList.pointre),
-    url(r'^home$',view.RoutingList.pointre)
+    url(r'^loadcolor$',view.load_color,),
+    url(r'^calling$', TemplateView.as_view(template_name='calling.html'), name='calling'),
+    url(r'^getdistance$',view.get_distance),    
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

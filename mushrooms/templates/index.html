@@ -3,17 +3,20 @@
 
 <head>
   {% leaflet_js %} {% leaflet_css %}
+  <script src="https://traffic.hcmut.edu.vn"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <style>
     .leaflet-container {
-      height: 70%;
+      height:100%;
       width: 100%
     }
   </style>
   <script type="text/javascript">
     var dataurl = '{% url "data" %}';
-
+    var map ;
+    var flagPast=0;
     window.addEventListener("map:init", function (event) {
-      var map = event.detail.map;
+      map = event.detail.map;
       // Download GeoJSON data with Ajax
       var myLines = [{
         "type": "LineString",
@@ -37,23 +40,248 @@
         });
          map.on('click', 
 		 	function(e){
+        showLiveTrafficInfo(map);
 		 		var coord = e.latlng.toString().split(',');
 		 		var lat = coord[0].split('(');
 		 		var lng = coord[1].split(')');
 		 		//alert("You clicked the map at LAT: " + lat[1] + " and LONG: " + lng[0]);
          document.getElementById("listpoint").value += lat[1]+","+lng[0]+";"; 
-         L.marker(e.latlng).addTo(map);
-		 	});
+         L.marker(e.latlng,
+         {
+          draggable: true
+        }
+         ).addTo(map);
+       });
       var myLayer = L.geoJSON().addTo(map);
       myLayer.addData(myLines);
     });
+//    map.on('moveend', function(e) {
+//      showLiveTrafficInfo();
+//   });
+    function drawSegments(data) {
+      var geotraffic = {};
+      geotraffic['type'] = "FeatureCollection";
+      geotraffic['features'] = [];
+      var length = data.length;
+      for(var i=0; i<length; i++){
+        var segArray = data[i].v.split(',');
+        segArray[0] = parseFloat(segArray[0]);
+        segArray[1] = parseFloat(segArray[1]);
+        segArray[2] = parseFloat(segArray[2]);
+        segArray[3] = parseFloat(segArray[3]);
+        segArray[4] = parseFloat(segArray[4]);
+        //segArray[5] = parseFloat(segArray[5]);
+        segArray[6] = parseFloat(segArray[6]);
+        //segArray[5] = parseFloat(segArray[5]);
+        var feature = {};
+        feature['type'] = "Feature";
+        feature['properties'] = {'v' : segArray[4], 'd' : segArray[5], 'c': segArray[6]};
+        var geometry = {};
+        geometry['type'] = "LineString";
+        geometry['coordinates'] = [[segArray[1],segArray[0]],[segArray[3],segArray[2]]];
+        feature['geometry'] = geometry;
+        geotraffic['features'].push(feature);
+        if((map.getZoom() >= 17) && (flagWarning == 1) && (segArray[4] <= 5)){
+          var featureP = {};
+          featureP['type'] = "Feature";
+          featureP['properties'] = {'v' : segArray[4], 'd' : segArray[5]};
+          var geometryP = {};
+          geometryP['type'] = "Point";
+          geometryP['coordinates'] = [(segArray[1]+segArray[3])/2,(segArray[0]+segArray[2])/2];
+          featureP['geometry'] = geometryP;
+          geowarning['features'].push(featureP);
+        }
+      }
+      return geotraffic;
+    }
+    function updateMap(data) {
+      //var geturl = 'http://traffic.hcmut.edu.vn/hcm/rest/tc/get?key=';
+      var geturl = '/hcm/rest/tc/get?key=';
+      if (data == null || data.segs.length == 0) {
+        return;
+      }
+      if (!data.last) {
+        load = $.ajax({
+          url: geturl + data.key,
+          type: 'GET',
+          dataType: "jsonp",
+          timeout: 1000,
+          success: function (next_data) {				
+            updateMap(next_data);
+          },
+        });
+      }
+      var geotraffic = drawSegments(data.segs);
+      trafficLayer = L.geoJson(geotraffic,{
+        style : style,
+        onEachFeature: onEachFeature
+      }).addTo(map);
+      tcLayer.push(trafficLayer);
+      if((flagWarning == 1) && (map.getZoom() >= 17)){
+        warningLayer = L.geoJson(geowarning,{
+          pointToLayer: function(feature, latlng){
+            return L.userMarker(latlng,{pulsing:true});
+          },
+          onEachFeature: onEachFeatureWarning
+        }).addTo(map);	
+      }
+    }
+    function showLiveTrafficInfo(map){
+//      map.off('movestart',  requestChangeView);
+      var latlngTL = map.getBounds().getNorthWest(),
+        latlngTR = map.getBounds().getNorthEast(),
+        latlngBL = map.getBounds().getSouthWest(),
+        latlngBR = map.getBounds().getSouthEast();
+    
+      var url = 'https://traffic.hcmut.edu.vn/hcm/rest/tc/init?latTL=' + latlngTL.lat + '&lonTL=' + latlngTL.lng + '&latTR=' + latlngTR.lat + '&lonTR=' + latlngTR.lng + '&latBL=' + latlngBL.lat + '&lonBL=' + latlngBL.lng + '&latBR=' + latlngBR.lat + '&lonBR=' + latlngBR.lng + '&zoom=' + map.getZoom();
+      //var url = 'http://traffic.hcmut.edu.vn/hcm/rest/rectangleSpeed?latTL=' + latlngTL.lat + '&lonTL=' + latlngTL.lng + '&latTR=' + latlngTR.lat + '&lonTR=' + latlngTR.lng + '&latBL=' + latlngBL.lat + '&lonBL=' + latlngBL.lng + '&latBR=' + latlngBR.lat + '&lonBR=' + latlngBR.lng + '&zoom=' + map.getZoom();
+    
+      if((map.getZoom() >= 17)){
+        var geowarning = {};
+        geowarning['type'] = "FeatureCollection";
+        geowarning['features'] = [];
+      }
+ //     var xhttp = new XMLHttpRequest();
+   //   xhttp.open("GET", url, false);
+     // xhttp.setRequestHeader("Content-type", "text/html");
+      //xhttp.send();
+      //var response = JSON.parse(xhttp.response);
+      var token = $('input[name="csrfmiddlewaretoken"]').prop('value');
+      $.ajax({
+        type: 'post',
+        url: 'loadcolor',
+        data:  (
+          {
+            'csrfmiddlewaretoken': token,
+            latTL:latlngTL.lat,lonTL:latlngTL.lng,latTR:latlngTR.lat,lonTR:latlngTR.lng,latBL:latlngBL.lat,lonBL:latlngBL.lng,latBR:latlngBR.lat,lonBR:latlngBR.lng,zoom:map.getZoom()
+          }
+        ) 
+        ,
+        success: function(response) {
+          updateMap(response);
+        },
+        error: function(xhr, status, error) {
+          // shit happens friends!
+        }
+      });
+//      map.on('movestart',  requestChangeView);
+    }
+    var	counter;
+function requestChangeView(){
+	clearInterval(counter);
+	var	count = 2;
+	counter = setInterval(function(){
+		count -= 1;
+		if(count <= 0){
+			clearInterval(counter);
+			if(flagPast == 0) showLiveTrafficInfo();
+//			else showPastTrafficInfo();
+			return;
+		}
+	},1000);
+}
+function style(feature){
+	return {
+		opacity : 0.7,
+		weight : weight_polyline(),
+		color : gradient(feature.properties.v/60)
+	};
+}
+function gradient(color) {
+	// First arc (0, PI) in HSV colorspace
+	function f2h(d) {
+		return d2h(256 * d); 
+	}
+	if (color < 0)
+		return "#FF0000";
+	//else if (color < 1.0/3)
+	else if (color < 0.5/3)
+		return "#FF" + f2h((3 * color) * 2) + "00";
+
+	else if (color < 2.0/3)
+		//return "#" + f2h(2 - 3 * color) + "FF00";
+		return "#" + f2h((2 - 3 * color) / 1.5) + "FF00";
+	else if (color < 1)
+		return "#00FF" + f2h(3 * color - 2);
+	else
+		return "#00FFFF";
+};
+
+function style(feature){
+	return {
+		opacity : 0.7,
+		weight : weight_polyline(),
+		color : gradient(feature.properties.v/60)
+	};
+}
+function onEachFeature(feature, layer){
+	layer.on({
+		click: highlightFeature,
+		mouseover: highlightFeature,
+		mouseout: resetHighLight,
+	});
+}
+function weight_polyline(){
+	switch (map.getZoom()){
+		case 20:	return	8; break;
+		case 19:	return	7; break;
+		case 18: 	return	6; break;
+		case 17: 	return	5; break;
+		case 16: 	return	4; break;
+		case 15: 	return	4; break;
+		case 14:    	return  3; break;
+		default: 	return  2; 
+	}
+}
+function d2h(d) {
+	var hex = '0123456789ABCDEF';
+	var r = '';
+	d = Math.floor(d);
+	while (d != 0) {
+		r = hex[d % 16] + r;
+		d = Math.floor(d / 16);
+	}
+	while (r.length < 2) r = '0' + r;
+	return r;
+}
+
+function highlightFeature(e){
+	var layer = e.target;
+	layer.setStyle({
+		weight : 7,
+		opacity : 1
+	});
+
+	if(!L.Browser.ie && !L.Browser.opera){
+		layer.bringToFront();
+	}
+	
+	if (layer.feature.properties.c > 0){
+		var popupPosition = L.popup().setLatLng(e.latlng).setContent("Vận tốc: " + Math.round(layer.feature.properties.v*9.5)/10 + " - " +Math.round(layer.feature.properties.v*10.5)/10 + " km/h<br>" + "Độ tin cậy: " + layer.feature.properties.c + "%" ).openOn(map);
+	}
+	else {
+		var popupPosition = L.popup().setLatLng(e.latlng).setContent("Vận tốc: " + layer.feature.properties.v + " km/h<br>" + "Độ tin cậy: Không Xác Định" ).openOn(map);	
+	}
+	setTimeout(function(){map.closePopup(popupPosition);},2500);
+}
+function resetHighLight(e){
+	trafficLayer.resetStyle(e.target);
+}
+
+//map.on('movestart', requestChangeView);
+
+
   </script>
 </head>
 
 <body>
-  <h1>Mushrooms Spots</h1>
+  {% comment %} <h1>Mushrooms Spots</h1> {% endcomment %}
   {% leaflet_map "main" %}
-
+  <div class="hidden">
+    <form class="default_form">
+          {% csrf_token %}
+    </form>
+</div>
 </body>
 
 </html>

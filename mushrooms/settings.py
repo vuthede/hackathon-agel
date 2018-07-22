@@ -39,17 +39,21 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'leaflet',
     'djgeojson',
+    'corsheaders',
     'mushrooms'
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+
 ]
 
 ROOT_URLCONF = 'mushrooms.urls'
@@ -129,5 +133,10 @@ LEAFLET_CONFIG = {
     'MIN_ZOOM': 3,
     'MAX_ZOOM': 18,
 }
-
+CORS_ALLOW_CREDENTIALS= True
 #GDAL_LIBRARY_PATH = r'C:\OSGeo4W64\bin\gdal202'
+CORS_ORIGIN_WHITELIST = (
+    'google.com',
+    'hostname.example.com'
+    'traffic.hcmut.edu.vn'
+)
