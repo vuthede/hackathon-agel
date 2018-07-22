@@ -1,20 +1,17 @@
 '''
 Collection of routes (chrmosomes)
 '''
-from src.route import *
+from route import *
 
 class Population:
     routes = []
     # Good old contructor
     def __init__ (self, populationSize, initialise):
-        
         self.populationSize = populationSize
         if initialise:
-#             self.routes = []
             for i in range(populationSize):
                 newRoute = Route() # Create empty route
                 newRoute.generateIndividual() # Add route sequences
-                #print("route:", newRoute.toString())
                 self.routes.append(newRoute) # Add route to the population
 
     # Saves the route passed as argument at index

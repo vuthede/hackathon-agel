@@ -1,4 +1,40 @@
 {% include "index.html" %}
+{% block js %}
+<script>
+  function caculate() {
+    var token = $('input[name="csrfmiddlewaretoken"]').prop('value');
+    $.ajax({
+       type: 'post',
+       url: 'caculate',
+       data:  (
+         {
+           'csrfmiddlewaretoken': token,
+         }
+       ) 
+       ,
+       success: function(response) {
+         
+        var myLines = [{
+          "type": "LineString",
+          "coordinates": response
+        }, {
+          "type": "LineString",
+          "coordinates": response
+        }];
+        var myLayer = L.geoJSON().addTo(map);
+        myLayer.addData(myLines);
+       },
+       error: function(xhr, status, error) {
+         // shit happens friends!
+       }
+     });
+  }
+  window.addEventListener("map:init", function (event) {
+    map = event.detail.map;
+    // Download GeoJSON data with Ajax
+  });
+</script>
+{% endblock js %}
 <div>
         <form action="home" method="get">
             {% csrf_token %}
@@ -12,6 +48,6 @@
       <h1> Your email is {{ emailvalue }} </h1>
       {% endif %}
       
-      <textarea id="listpoint" rows="4" cols="50">{{routes}}</textarea>
-      <button id="startcal" onclick="location.href= '/home'">Caculate</button>
+      <textarea id="listpoint" rows="4" cols="50"></textarea>
+      <button id="startcal" onclick="caculate()">Caculate</button>
     </div>

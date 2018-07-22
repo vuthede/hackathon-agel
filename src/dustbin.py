@@ -4,7 +4,7 @@ Locatin coordinates can be passed while creating the object or they
 will be assigned random values.
 '''
 from src.globals import *
-from src.helper import haversine, real_distance
+from src.helper import haversine
 
 class Dustbin:
     
@@ -21,9 +21,16 @@ class Dustbin:
         return self.__lng
     
     def distanceTo (self, db):
-        #return haversine(self.getLng(), self.getLat(), db.getLng(), db.getLat())
-        return real_distance(self.getLng(), self.getLat(), db.getLng(), db.getLat())
+        return haversine(self.getLng(), self.getLat(), db.getLng(), db.getLat())
+        #return real_distance(self.getLng(), self.getLat(), db.getLng(), db.getLat())
 
+    # Returns distance to the dustbin passed as argument
+    def distanceHaversineTo (self, db):
+        xDis = abs(self.getLng() - db.getLng())
+        yDis = abs(self.getLat() - db.getLat())
+        dis = math.sqrt((xDis*xDis) + (yDis*yDis))
+        return haversine(self.getLng(), self.getLat(), db.getLng(), db.getLat())
+    
     
     def toString (self):
         s =  '(' + str(self.getLat()) + ',' + str(self.getLng()) + ')'

@@ -31,4 +31,5 @@ urlpatterns = [
     url(r'^loadcolor$',view.load_color,),
     url(r'^calling$', TemplateView.as_view(template_name='calling.html'), name='calling'),
     url(r'^getdistance$',view.get_distance),    
+    url(r'^caculate$',view.RoutingList.pointre_multi)
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
